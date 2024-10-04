@@ -31,6 +31,7 @@ export const Login = () => {
         className={styles.field}
         label="E-Mail"
         error={Boolean(errors.email?.message)}
+        type='email'
         helperText={errors.email?.message}
         {...register('email', {required: "Укажите почту"})}
         fullWidth
