@@ -22,9 +22,19 @@ export const Login = () => {
     mode: 'onChange'
   });
 
-  const onSubmit = (values) => {
-    dispatch(fetchAuthData(values));
+  const onSubmit = async(values) => {
+    const data = await dispatch(fetchAuthData(values));
+
+    if (!data.payload) {
+      return alert('Не удалось авторизоваться')
+    }
+
+    if ('token' in data.payload) {
+      window.localStorage.setItem('token', data.payload.token);
+    }
   };
+
+  React.useEffect();
 
   if (isAuth) {
     return <Navigate to="/" />

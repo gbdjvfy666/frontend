@@ -22,7 +22,7 @@ export const FullPost = () => {
         console.warn(err);
         alert("Ошибка при получении статьи");
       });
-  }, []);
+  }, [id]); // Добавлено 'id' в зависимости
 
   if (isLoading || !data) {
     return <Post isLoading={isLoading} isFullPost />;
@@ -37,30 +37,14 @@ export const FullPost = () => {
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
-        commentsCount={3}
+        commentsCount={data.commentsCount || 0} // Используем реальное значение комментариев
         tags={data.tags}
         isFullPost
       >
         <p>{data.text}</p>
       </Post>
       <CommentsBlock
-        items={[
-          {
-            user: {
-              fullName: "Вася Пупкин",
-              avatarUrl: "https://mui.com/static/images/avatar/1.jpg",
-            },
-            text: "Это тестовый комментарий 555555",
-          },
-          {
-            user: {
-              fullName: "Иван Иванов",
-              avatarUrl: "https://mui.com/static/images/avatar/2.jpg",
-            },
-            text:
-              "When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top",
-          },
-        ]}
+        items={data.comments || []} // Используем комментарии из данных
         isLoading={false}
       >
         <Index />
