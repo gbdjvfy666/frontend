@@ -12,13 +12,13 @@ import { fetchPosts } from '../redux/slices/posts';
 
 export const Home = () => {
   const dispatch = useDispatch();
-  const { psots, tags } = useSelector(state => state.posts);
+  const { posts, tags } = useSelector(state => state.posts);
 
-  const isPostsLoading = posts.stastus == 'loading';
+  const isPostsLoading = posts.status === 'loading';
 
   React.useEffect (() => {
     dispatch(fetchPosts());
-}, []);
+}, [dispatch]);
 
   return (
     <>
@@ -38,7 +38,7 @@ export const Home = () => {
                   'https://res.cloudinary.com/practicaldev/image/fetch/s--uigxYVRB--/c_fill,f_auto,fl_progressive,h_50,q_auto,w_50/https://dev-to-uploads.s3.amazonaws.com/uploads/user/profile_image/187971/a5359a24-b652-46be-8898-2c5df32aa6e0.png',
                 fullName: 'Keff',
               }}
-              createdAt={'12 июня 2022 г.'}
+              createdAt={'12 июня 2024 г.'}
               viewsCount={150}
               commentsCount={3}
               tags={['react', 'fun', 'typescript']}
