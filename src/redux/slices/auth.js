@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../axios";
 
-// Асинхронное действие для авторизации пользователя
+// Асинхронные действия для авторизации
 export const fetchAuthData = createAsyncThunk('auth/fetchUserData', async (params) => {
   const { data } = await axios.post('/auth/login', params);
   return data;
@@ -13,23 +13,26 @@ export const fetchAuthMe = createAsyncThunk('auth/fetchAuthMe', async () => {
   return data;
 });
 
+// Регистрация
 export const fetchRegister = createAsyncThunk('auth/fetchRegister', async (params) => {
-  const { data } = await axios.post('/auth/register', params); // Pass params to the request
+  const { data } = await axios.post('/auth/register', params);
   return data;
 });
 
+// Начальное состояние
 const initialState = {
-  data: null, // Данные пользователя
-  status: 'loading', // Статус запроса: loading, loaded, error
+  data: null,
+  status: 'loading',
+  error: null, // Добавлено свойство для сообщения об ошибке
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Логика для выхода пользователя
     logout: (state) => {
-      state.data = null; // Обнуляем данные при выходе
+      state.data = null;
+      state.error = null; // Сбрасываем ошибку при выходе
     }
   },
   extraReducers: (builder) => {
@@ -37,38 +40,44 @@ const authSlice = createSlice({
       .addCase(fetchAuthData.pending, (state) => {
         state.status = 'loading';
         state.data = null;
+        state.error = null; // Сбрасываем ошибку
       })
       .addCase(fetchAuthData.fulfilled, (state, action) => {
         state.status = 'loaded';
-        state.data = action.payload; // Сохраняем данные после успешной авторизации
+        state.data = action.payload;
       })
-      .addCase(fetchAuthData.rejected, (state) => {
+      .addCase(fetchAuthData.rejected, (state, action) => {
         state.status = 'error';
         state.data = null;
+        state.error = action.error.message; // Сохраняем сообщение об ошибке
       })
       .addCase(fetchAuthMe.pending, (state) => {
         state.status = 'loading';
         state.data = null;
+        state.error = null; // Сбрасываем ошибку
       })
       .addCase(fetchAuthMe.fulfilled, (state, action) => {
         state.status = 'loaded';
-        state.data = action.payload; // Сохраняем данные текущего пользователя
+        state.data = action.payload;
       })
-      .addCase(fetchAuthMe.rejected, (state) => {
+      .addCase(fetchAuthMe.rejected, (state, action) => {
         state.status = 'error';
         state.data = null;
+        state.error = action.error.message; // Сохраняем сообщение об ошибке
       })
       .addCase(fetchRegister.pending, (state) => {
         state.status = 'loading';
         state.data = null;
+        state.error = null; // Сбрасываем ошибку
       })
       .addCase(fetchRegister.fulfilled, (state, action) => {
         state.status = 'loaded';
-        state.data = action.payload; // Сохраняем данные текущего пользователя
+        state.data = action.payload;
       })
-      .addCase(fetchRegister.rejected, (state) => {
+      .addCase(fetchRegister.rejected, (state, action) => {
         state.status = 'error';
         state.data = null;
+        state.error = action.error.message; // Сохраняем сообщение об ошибке
       });
   }
 });
