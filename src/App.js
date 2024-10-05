@@ -7,30 +7,34 @@ import React, { useEffect } from 'react';
 import { fetchAuthMe, selectIsAuth } from './redux/slices/auth';
 
 function App() {
-  const dispatch = useDispatch();
-  const isAuth = useSelector(selectIsAuth);
+	const dispatch = useDispatch();
+	const isAuth = useSelector(selectIsAuth);
 
-  // Вызываем fetchAuthMe только при первом рендере
-  useEffect(() => {
-    if (!isAuth) {
-      dispatch(fetchAuthMe());
-    }
-  }, [dispatch, isAuth]);
+	// Проверка токена в localStorage
+	useEffect(() => {
+		const token = window.localStorage.getItem('token');
 
-  return (
-    <>
-      <Header />
-      <Container maxWidth="lg">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/posts/:id" element={<FullPost />}/>
-          <Route path="/add-post" element={<AddPost />}/>
-          <Route path="/login" element={<Login />}/>
-          <Route path="/register" element={<Registration />}/>
-        </Routes>
-      </Container>
-    </>
-  );
+		// Если токен есть, пытаемся получить данные пользователя
+		if (token && !isAuth) {
+			dispatch(fetchAuthMe());
+		}
+	}, [dispatch, isAuth]);
+
+	return (
+		<>
+			<Header />
+			<Container maxWidth='lg'>
+				<Routes>
+					<Route path='/' element={<Home />} />
+					<Route path='/posts/:id' element={<FullPost />} />
+					<Route path='/add-post' element={<AddPost />} />
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Registration />} />
+				</Routes>
+			</Container>
+		</>
+	);
 }
+
 
 export default App;

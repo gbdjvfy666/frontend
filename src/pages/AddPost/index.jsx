@@ -1,7 +1,7 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import SimpleMDE from 'react-simplemde-editor';
@@ -10,13 +10,16 @@ import axios from '../../axios';
 import { selectIsAuth } from '../../redux/slices/auth'; // Этот импорт оставляем
 import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
+import { Description } from '@mui/icons-material';
 
 // Удалите дублирующий импорт selectIsAuth
 // import { selectIsAuth } from '../../redux/slices/auth'; 
 
 export const AddPost = () => {
+  const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
-  const [value, setValue] = React.useState('');
+  const [isLoading, setLoading] = React.useState(false);
+  const [text, setText] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
@@ -38,12 +41,38 @@ export const AddPost = () => {
 
 
   const onClickRemoveImage = () => {
-
+    setImageUrl('');
   };
 
   const onChange = React.useCallback((value) => {
-    setValue(value);
+    setText(value);
   }, []);
+
+  const onSubmit = async () => {
+    if (!title || !text || !tags) {
+      return alert('Заполните все поля!');
+    }
+  
+    try {
+      setLoading(true);
+      const fields = {
+        title,
+        imageUrl,
+        tags: tags.split(','),
+        text,
+      };
+      const { data } = await axios.post('/posts', fields);
+  
+      const id = data._id;
+      navigate(`/posts/${id}`);
+    } catch (err) {
+      console.warn(err);
+      alert('Ошибка при создании статьи');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   const options = React.useMemo(
     () => ({
@@ -64,7 +93,7 @@ export const AddPost = () => {
     return <Navigate to="/" />;
   }
 
-  console.log({title, tags, value});
+  console.log({title, tags});
 
   return (
     <Paper style={{ padding: 30 }}>
@@ -94,11 +123,11 @@ export const AddPost = () => {
       value={tags}
       onChange={(e) => setTags(e.target.value)}
       classes={{ root: styles.tags }} variant="standard" placeholder="Тэги" fullWidth />
-      <SimpleMDE className={styles.editor} value={value} onChange={onChange} options={options} />
+      <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
-        <Button size="large" variant="contained">
-          Опубликовать
-        </Button>
+      <Button onClick={onSubmit} size="large" variant="contained">
+        Опубликовать
+      </Button>
         <a href="/">
           <Button size="large">Отмена</Button>
         </a>
