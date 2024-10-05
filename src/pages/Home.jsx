@@ -11,13 +11,14 @@ import { fetchPosts, fetchTags } from '../redux/slices/posts';
 export const Home = () => {
   const dispatch = useDispatch();
   const { posts, tags } = useSelector((state) => state.posts);
+  const userData = useSelector((state) => state.auth.data); // Получаем данные о текущем пользователе
 
   const isPostsLoading = posts.status === 'loading';
   const isTagsLoading = tags.status === 'loading';
 
   React.useEffect(() => {
-    dispatch(fetchPosts());
-    dispatch(fetchTags());
+    dispatch(fetchPosts()).then((res) => console.log(res.payload));
+    dispatch(fetchTags()).then((res) => console.log(res.payload));
   }, [dispatch]);
 
   return (
@@ -33,16 +34,17 @@ export const Home = () => {
               <Post key={index} isLoading={true} />
             ) : (
               <Post
-                _id={obj._id}
-                title={obj.title}
-                imageUrl={obj.imageUrl}
-                user={obj.user}
-                createdAt={obj.createdAt}
-                viewsCount={obj.viewsCount}
-                commentsCount={3}
-                tags={obj.tags}
-                isEditable
-              />
+                  key={obj._id}
+                  _id={obj._id}
+                  title={obj.title}
+                  imageUrl={obj.imageUrl}
+                  user={obj.user}  // Добавьте это
+                  createdAt={obj.createdAt}
+                  viewsCount={obj.viewsCount}
+                  commentsCount={3}
+                  tags={obj.tags}  // Добавьте это для тегов
+                  isEditable={userData?._id === obj.user._id}
+                />
             ),
           )}
         </Grid>

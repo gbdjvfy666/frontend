@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import Container from "@mui/material/Container";
-
 import { Header } from "./components";
 import { Home, FullPost, Registration, AddPost, Login } from "./pages";
 import React, { useEffect } from 'react';
@@ -11,9 +10,12 @@ function App() {
   const dispatch = useDispatch();
   const isAuth = useSelector(selectIsAuth);
 
-  React.useEffect(() => {
-    dispatch(fetchAuthMe());
-  }, []);
+  // Вызываем fetchAuthMe только при первом рендере
+  useEffect(() => {
+    if (!isAuth) {
+      dispatch(fetchAuthMe());
+    }
+  }, [dispatch, isAuth]);
 
   return (
     <>
