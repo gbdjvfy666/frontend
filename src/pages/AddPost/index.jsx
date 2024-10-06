@@ -18,8 +18,7 @@ import { Description } from '@mui/icons-material';
 export const AddPost = () => {
   const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
-  const [isLoading, setLoading] = React.useState(false);
-  const [text, setText] = React.useState('');
+  const [value, setValue] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
@@ -47,32 +46,6 @@ export const AddPost = () => {
   const onChange = React.useCallback((value) => {
     setText(value);
   }, []);
-
-  const onSubmit = async () => {
-    if (!title || !text || !tags) {
-      return alert('Заполните все поля!');
-    }
-  
-    try {
-      setLoading(true);
-      const fields = {
-        title,
-        imageUrl,
-        tags: tags.split(','),
-        text,
-      };
-      const { data } = await axios.post('/posts', fields);
-  
-      const id = data._id;
-      navigate(`/posts/${id}`);
-    } catch (err) {
-      console.warn(err);
-      alert('Ошибка при создании статьи');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
 
   const options = React.useMemo(
     () => ({
