@@ -3,41 +3,29 @@ import { useParams } from "react-router-dom";
 import { Post } from "../components/Post";
 import { Index } from "../components/AddComment";
 import { CommentsBlock } from "../components/CommentsBlock";
-import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import instance from "../axios";
 
 export const FullPost = () => {
-  const [data, setData] = React.useState(null); // Начальное значение null
+  const [data, setData] = React.useState(null);
   const [isLoading, setLoading] = React.useState(true);
   const { id } = useParams();
 
   React.useEffect(() => {
     setLoading(true);
-    axios
+    instance
       .get(`/posts/${id}`)
       .then((res) => {
-        console.log('Response:', res); // Логируем успешный ответ
+        console.log('Response:', res);
         setData(res.data);
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error Details:', err); // Логируем всю информацию об ошибке
-        if (err.response) {
-          // Сервер ответил с ошибкой
-          console.error('Response Data:', err.response.data);
-          console.error('Response Status:', err.response.status);
-          console.error('Response Headers:', err.response.headers);
-        } else if (err.request) {
-          // Запрос был сделан, но ответа нет
-          console.error('Request:', err.request);
-        } else {
-          // Ошибка в настройке запроса
-          console.error('Error Message:', err.message);
-        }
+        console.error("Ошибка при получении статьи:", err);
         alert("Ошибка при получении статьи");
+        setLoading(false);
       });
-  }, [id]); // Добавлено 'id' в зависимости
-  
+  }, [id]);
 
   if (isLoading || !data) {
     return <Post isLoading={isLoading} isFullPost />;
@@ -48,19 +36,17 @@ export const FullPost = () => {
       <Post
         _id={data._id}
         title={data.title}
-        imageUrl={`http://localhost:4444${data.imageUrl}`}
+        imageUrl={data.imageUrl ? `http://localhost:4444${data.imageUrl}` : ""}
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
-        commentsCount={data.commentsCount || 0} // Используем реальное значение комментариев
+        commentsCount={data.commentsCount || 0}
         tags={data.tags}
-        isFullPost>
-        <ReactMarkdown children={data.text} />
-      </Post>
-      <CommentsBlock
-        items={data.comments || []} // Используем комментарии из данных
-        isLoading={false}
+        isFullPost
       >
+        <ReactMarkdown>{data.text}</ReactMarkdown>
+      </Post>
+      <CommentsBlock items={data.comments || []} isLoading={false}>
         <Index />
       </CommentsBlock>
     </>
