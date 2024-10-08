@@ -42,9 +42,8 @@ export const FullPost = () => {
         viewsCount={data.viewsCount}
         commentsCount={data.commentsCount || 0}
         tags={data.tags}
-        isFullPost
-      >
-        <ReactMarkdown>{data.text}</ReactMarkdown>
+        isFullPost>
+        <ReactMarkdown children={data.text} />
       </Post>
       <CommentsBlock items={data.comments || []} isLoading={false}>
         <Index />

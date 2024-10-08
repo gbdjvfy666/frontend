@@ -12,6 +12,12 @@ export const fetchTags = createAsyncThunk('posts/fetchTags', async () => {
   return data;
 });
 
+// Исправлено: правильный путь для удаления поста
+export const fetchRemovePost = createAsyncThunk('posts/fetchRemovePost', async (id) => {
+  await axios.delete(`/posts/${id}`);
+  return id; // Возвращаем ID удаленного поста
+});
+
 // Начальное состояние
 const initialState = {
   posts: {
@@ -62,6 +68,19 @@ const postsSlice = createSlice({
         state.tags.items = [];
         state.tags.status = 'error';
         state.tags.error = action.error.message; // Сохраняем сообщение об ошибке
+      })
+      //----------------------------------------------------------------------------------------------------------------------------------------/
+      // Обработка удаления поста
+      .addCase(fetchRemovePost.pending, (state, action) => {
+        state.posts.status = 'loading'; // Отмечаем статус как "удаление"
+      })
+      .addCase(fetchRemovePost.fulfilled, (state, action) => {
+        state.posts.items = state.posts.items.filter((obj) => obj._id !== action.payload); // Удаляем пост по ID
+        state.posts.status = 'loaded'; // Возвращаем статус после удаления
+      })
+      .addCase(fetchRemovePost.rejected, (state, action) => {
+        state.posts.status = 'error';
+        state.posts.error = action.error.message; // Сохраняем сообщение об ошибке
       });
   },
 });

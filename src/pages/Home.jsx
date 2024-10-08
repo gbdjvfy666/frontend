@@ -43,7 +43,7 @@ export const Home = () => {
                   viewsCount={obj.viewsCount}
                   commentsCount={3}
                   tags={obj.tags}  // Добавьте это для тегов
-                  isEditable={userData?._id === obj.user._id}
+                  isEditable={userData?._id !== obj.user._id}
                 />
             ),
           )}
