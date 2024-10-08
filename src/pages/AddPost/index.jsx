@@ -10,6 +10,7 @@ import { selectIsAuth } from '../../redux/slices/auth'; // Импорт для �
 import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
+
 export const AddPost = () => {
   const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
@@ -17,6 +18,7 @@ export const AddPost = () => {
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
+  const [loading, setLoading] = React.useState(false); // Added loading state
   const inputFileRef = React.useRef(null);
 
   const handleChangeFile = async (event) => {
@@ -56,11 +58,8 @@ export const AddPost = () => {
   );
 
   const onSubmit = async () => {
-    if (!title || !text) {
-      return alert('Пожалуйста, заполните все поля!');
-    }
-
     try {
+      setLoading(true);
       const fields = {
         title,
         text,

@@ -5,10 +5,8 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  config.headers.Autorization = window.localStorage.getItem('token');
+  config.headers.Authorization = window.localStorage.getItem('token'); // Исправлено название заголовка
   return config;
-
 });
-
 
 export default instance;
