@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { useSelector } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import SimpleMDE from 'react-simplemde-editor';
@@ -10,16 +10,18 @@ import { selectIsAuth } from '../../redux/slices/auth'; // Импорт для �
 import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
-
 export const AddPost = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
   const [text, setText] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
-  const [loading, setLoading] = React.useState(false); // Added loading state
+  const [loading, setLoading] = React.useState(false); // Состояние загрузки
   const inputFileRef = React.useRef(null);
+
+  const isEditing = Boolean(id);
 
   const handleChangeFile = async (event) => {
     try {
@@ -66,16 +68,43 @@ export const AddPost = () => {
         tags,
         imageUrl,
       };
-      const { data } = await axios.post('/posts', fields);
-      const id = data._id;
-      navigate(`/posts/${id}`);
+
+      const { data } = isEditing 
+        ? await axios.patch(`/posts/${id}`, fields)
+        : await axios.post('/posts', fields);
+
+      const _id = isEditing ? id : data._id;
+      navigate(`/posts/${_id}`);
     } catch (err) {
       console.warn(err);
       alert('Ошибка при создании поста');
+    } finally {
+      setLoading(false); // Убедитесь, что состояние загрузки сбрасывается
     }
   };
 
-  if (!window.localStorage.getItem('token') && !isAuth) {
+  useEffect(() => {
+    if (id) {
+      setLoading(true); // Устанавливаем состояние загрузки при начале запроса
+      axios
+        .get(`/posts/${id}`)
+        .then(({ data }) => {
+          setTitle(data.title);
+          setText(data.text); // Исправлено: должно быть setText
+          setImageUrl(data.imageUrl);
+          setTags(data.tags.join(','));
+        })
+        .catch(err => {
+          console.warn(err);
+          alert('При получении статьи ошибка');
+        })
+        .finally(() => {
+          setLoading(false); // Устанавливаем состояние загрузки в false, когда запрос завершен
+        });
+    }
+  }, [id]); // Добавлено id в зависимости
+
+  if (!isAuth) {
     return <Navigate to="/" />;
   }
 
@@ -112,13 +141,14 @@ export const AddPost = () => {
       />
       <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
-        <Button onClick={onSubmit} size="large" variant="contained">
-          Опубликовать
+        <Button onClick={onSubmit} size="large" variant="contained" disabled={loading}>
+          {isEditing ? 'Сохранить' : 'Опубликовать'}
         </Button>
         <Button size="large" onClick={() => navigate('/')}>
           Отмена
         </Button>
       </div>
+      {loading && <p>Загрузка...</p>} {/* Сообщение о загрузке */}
     </Paper>
   );
 };
