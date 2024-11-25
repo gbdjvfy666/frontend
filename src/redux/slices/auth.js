@@ -9,8 +9,13 @@ export const fetchAuthData = createAsyncThunk('auth/fetchUserData', async (param
 
 // Асинхронное действие для получения текущего авторизованного пользователя
 export const fetchAuthMe = createAsyncThunk('auth/fetchAuthMe', async () => {
-	const { data } = await axios.get('/auth/me');
-	return data;
+  const token = window.localStorage.getItem('token');
+  const { data } = await axios.get('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data;
 });
 
 export const fetchRegister = createAsyncThunk('auth/fetchRegister', async (params) => {
@@ -31,6 +36,7 @@ const authSlice = createSlice({
     // Логика для выхода пользователя
     logout: (state) => {
       state.data = null; // Обнуляем данные при выходе
+      window.localStorage.removeItem('token'); // Удаляем токен при выходе
     }
   },
   extraReducers: (builder) => {
@@ -42,6 +48,9 @@ const authSlice = createSlice({
       .addCase(fetchAuthData.fulfilled, (state, action) => {
         state.status = 'loaded';
         state.data = action.payload; // Сохраняем данные после успешной авторизации
+        if (action.payload.token) {
+          window.localStorage.setItem('token', action.payload.token); // Сохраняем токен
+        }
       })
       .addCase(fetchAuthData.rejected, (state) => {
         state.status = 'error';
@@ -66,6 +75,9 @@ const authSlice = createSlice({
       .addCase(fetchRegister.fulfilled, (state, action) => {
         state.status = 'loaded';
         state.data = action.payload; // Сохраняем данные текущего пользователя
+        if (action.payload.token) {
+          window.localStorage.setItem('token', action.payload.token); // Сохраняем токен
+        }
       })
       .addCase(fetchRegister.rejected, (state) => {
         state.status = 'error';
@@ -75,9 +87,8 @@ const authSlice = createSlice({
 });
 
 // Селектор для проверки авторизации
-export const selectIsAuth = () => {
-	// Проверяем наличие токена в localStorage
-	return Boolean(window.localStorage.getItem('token'));
+export const selectIsAuth = (state) => {
+  return Boolean(state.auth.data && window.localStorage.getItem('token'));
 };
 
 // Экспортируем редюсер

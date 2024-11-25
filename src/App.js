@@ -5,6 +5,7 @@ import { Header } from "./components";
 import { Home, FullPost, Registration, AddPost, Login } from "./pages";
 import React, { useEffect } from 'react';
 import { fetchAuthMe, selectIsAuth } from './redux/slices/auth';
+import { ProfilePage } from './pages/Profile/index';
 
 function App() {
 	const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function App() {
 					<Route path='/add-post' element={<AddPost />} />
 					<Route path='/login' element={<Login />} />
 					<Route path='/register' element={<Registration />} />
+					<Route path="/profile" element={<ProfilePage />} />
 				</Routes>
 			</Container>
 		</>

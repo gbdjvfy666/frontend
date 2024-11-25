@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import axios from "../../axios"; // Импорт axios для отправки комментария
 import { useParams } from 'react-router-dom';
 
-export const Index = () => {
+export const Index = ({ onAddComment }) => { // Передаем функцию onAddComment
   const [comment, setComment] = useState(''); // Стейт для хранения текста комментария
   const [loading, setLoading] = useState(false); // Стейт для индикатора загрузки
   const { id: postId } = useParams(); // Получение postId из параметров маршрута
@@ -24,9 +24,10 @@ export const Index = () => {
     try {
       setLoading(true);
       // Отправка комментария на сервер
-      await axios.post('/comments', { text: comment, postId });
+      const { data } = await axios.post('/comments', { text: comment, postId });
+
+      onAddComment(data); // Добавляем новый комментарий в список
       setComment(''); // Очистить поле ввода после успешной отправки
-      alert('Комментарий отправлен');
     } catch (error) {
       console.warn('Ошибка при отправке комментария', error);
       alert('Не удалось отправить комментарий');
@@ -62,4 +63,3 @@ export const Index = () => {
     </div>
   );
 };
-

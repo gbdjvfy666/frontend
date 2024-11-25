@@ -21,6 +21,7 @@ export const Header = () => {
   return (
     <div className={styles.root}>
       <Container maxWidth="lg">
+        
         <div className={styles.inner}>
           <Link className={styles.logo} to="/">
             <div>FedotovLexey</div>
@@ -30,6 +31,9 @@ export const Header = () => {
               <>
                 <Link to="/add-post">
                   <Button variant="contained">Написать статью</Button>
+                </Link>
+                <Link to="/profile" >
+                  <Button variant="contained" >Профиль</Button>
                 </Link>
                 <Button onClick={onClickLogout} variant="contained" color="error">
                   Выйти

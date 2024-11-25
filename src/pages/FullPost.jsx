@@ -1,22 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Post } from "../components/Post";
-import { Index } from "../components/AddComment";
+import { Index as AddComment } from "../components/AddComment"; // Компонент для добавления комментария
 import { CommentsBlock } from "../components/CommentsBlock";
 import ReactMarkdown from "react-markdown";
-import instance from "../axios";
+import axios from "../axios.js";
 
 export const FullPost = () => {
-  const [data, setData] = React.useState(null);
-  const [isLoading, setLoading] = React.useState(true);
-  const { id } = useParams();
+  const [data, setData] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+  const [comments, setComments] = useState([]);
+  const { id } = useParams(); // Получаем id из параметров
 
-  React.useEffect(() => {
+  // Загружаем комментарии
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const { data } = await axios.get(`/posts/${id}/comments`);
+        setComments(data.comments); // Сохраняем комментарии
+      } catch (error) {
+        console.warn("Ошибка при загрузке комментариев", error);
+      }
+    };
+    
+    fetchComments();
+  }, [id]);
+
+  // Добавление нового комментария в список
+  const handleAddComment = (newComment) => {
+    setComments((prevComments) => [...prevComments, newComment]);
+  };
+
+  // Загружаем пост
+  useEffect(() => {
     setLoading(true);
-    instance
+    axios
       .get(`/posts/${id}`)
       .then((res) => {
-        console.log('Response:', res);
         setData(res.data);
         setLoading(false);
       })
@@ -40,15 +60,18 @@ export const FullPost = () => {
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
-        commentsCount={data.commentsCount || 0}
+        commentsCount={comments.length}
         tags={data.tags}
         isFullPost>
-        <ReactMarkdown children={data.text} />
+        <ReactMarkdown>{data.text}</ReactMarkdown>
       </Post>
-      <CommentsBlock items={data.comments || []} isLoading={false}>
-        <Index />
-      </CommentsBlock>
+      <div>
+        <h2>Комментарии</h2>
+        {/* Отображение комментариев */}
+        <CommentsBlock comments={comments} />
+        {/* Добавление нового комментария */}
+        <AddComment onAddComment={handleAddComment} />
+      </div>
     </>
   );
 };
-
